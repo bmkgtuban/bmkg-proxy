@@ -1,0 +1,6 @@
+{
+  "name": "bmkg-proxy",
+  "version": "1.0.0",
+  "description": "Simple proxy for BMKG images (Vercel Serverless)",
+  "engines": { "node": "18.x" }
+}
