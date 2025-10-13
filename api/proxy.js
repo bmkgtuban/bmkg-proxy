@@ -1,38 +1,27 @@
-// api/proxy.js
+import fetch from "node-fetch";
+
 export default async function handler(req, res) {
-  const url = req.query.url || (req.url && req.url.split('?url=')[1]);
+  const { url } = req.query;
   if (!url) {
-    res.status(400).send('Missing url parameter');
-    return;
+    return res.status(400).send("Missing ?url parameter");
   }
 
   try {
-    // Basic sanity: hanya izinkan domain BMKG untuk mencegah abuse
-    const allowedHosts = ['maritim-tanjungperak.bmkg.go.id'];
-    const parsed = new URL(url);
-    if (!allowedHosts.includes(parsed.hostname)) {
-      res.status(403).send('Host not allowed');
-      return;
+    const response = await fetch(url);
+    if (!response.ok) {
+      return res.status(response.status).send("Failed to fetch image");
     }
 
-    // fetch upstream
-    const upstream = await fetch(url, { redirect: 'follow', timeout: 20000 });
-    if (!upstream.ok) {
-      res.status(502).send('Failed to fetch upstream');
-      return;
-    }
+    // Ambil buffer gambar
+    const contentType = response.headers.get("content-type") || "image/png";
+    const buffer = await response.arrayBuffer();
 
-    const contentType = upstream.headers.get('content-type') || 'application/octet-stream';
-    const buffer = Buffer.from(await upstream.arrayBuffer());
-
-    // CORS + caching headers
-    res.setHeader('Access-Control-Allow-Origin', '*');
-    res.setHeader('Content-Type', contentType);
-    res.setHeader('Cache-Control', 'public, max-age=1800'); // cache CDN 30 menit
-
-    res.status(200).send(buffer);
+    // Kirim hasilnya ke browser
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Cache-Control", "public, max-age=3600"); // cache 1 jam
+    res.send(Buffer.from(buffer));
   } catch (err) {
-    console.error('Proxy error:', err);
-    res.status(500).send('Proxy error');
+    console.error(err);
+    res.status(500).send("Server error");
   }
 }
