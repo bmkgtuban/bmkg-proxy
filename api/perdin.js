@@ -9,17 +9,10 @@ export default async function handler(req, res) {
     const response = await fetch(url, {
       method: "GET",
       headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120 Safari/537.36",
-        "Accept":
-          "image/avif,image/webp,image/apng,image/*,*/*;q=0.8",
-        "Accept-Language": "en-US,en;q=0.9,id;q=0.8",
-        "Referer": "https://stamet-juanda.bmkg.go.id/",
-        "Origin": "https://stamet-juanda.bmkg.go.id",
-        "Connection": "keep-alive",
-        "Cache-Control": "no-cache",
-        "Pragma": "no-cache"
-      }
+        "User-Agent": "Mozilla/5.0",
+        "Accept": "*/*"
+      },
+      redirect: "follow"
     });
 
     if (!response.ok) {
